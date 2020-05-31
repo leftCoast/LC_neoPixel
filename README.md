@@ -9,6 +9,10 @@ This allows passing colorObj to and from Adafruit NeoPixels. It also includes gr
 
 
 **What is it? What can it do for me?**  
-The founding idea behind this library is to allow setting NeoPixel colors from our colorObj(s). This also includes reading the NeoPixel colors back into our colorObj(s). This in itself opens up NeoPixles to a variety of color Operations supplied by the colorObj class.
+This library allows setting and retereving NeoPixel colors using our colorObj class. Shifting a strings of pixels left or right and to rolling rings of pixels clockwise or counter clockwise. (Great for goggles.)
 
-On top of this is the ability to shift a line of pixels left or right. Also to roll rings of pixels clockwise or counter clockwise. (Great for goggles.)
+The included chainPixel class allows groups of pixels to be coded independantly from each other, while running off of a single processor pin.
+
+But we are going to wait on that for a bit.
+
+
