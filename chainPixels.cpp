@@ -33,7 +33,7 @@ void chainPixels::resetChain(void) {
   while(trace) {
     ((pixelGroup*)trace)->setIndex(numPixels);
     numPixels = numPixels + ((pixelGroup*)trace)->getNumPixels();
-    trace = trace->next;
+    trace = trace->getNext();
   }
   if (pixelDriver) {        // Just in case, we don't want to leak this.
       delete pixelDriver;
@@ -88,7 +88,7 @@ void chainPixels::idle(void) {
   trace = peek();
   while(trace) {            // Now everyone gets time to change thigns if they want.
     ((pixelGroup*)trace)->draw();
-    trace = trace->next;
+    trace = trace->getNext();
   }
   if (dirtyBit) {          // If someone did change something..
     pixelDriver->show();   // Lest show it!
