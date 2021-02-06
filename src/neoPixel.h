@@ -17,6 +17,7 @@ class neoPixel : public Adafruit_NeoPixel {
 	virtual	~neoPixel();
   
 				bool		isRGBType(void);
+				void		setPixelColor(uint16_t n,RGBpack* inColor);
   				void		setPixelColor(uint16_t n,colorObj* inColor);
   				colorObj	getPixelColor(uint16_t n);
   				void		setAll(colorObj* color);			// 'Cause its soo handy.

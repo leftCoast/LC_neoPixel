@@ -6,7 +6,7 @@
 
 
 //
-// Decoration I setup for "Franklin" My 1941 Dodge Carryall WC53.
+// Decoration I setup for "Franklin" My 1942 Dodge Carryall WC53.
 // See : https://youtu.be/JWgQ5aM2B5M
 // Or for the blog : https://www.eskimo.com/~jimlee/Home/Carryall_Blog/Carryall_Blog.html
 //

@@ -27,6 +27,20 @@ void neoPixel::setPixelColor(uint16_t n,colorObj* inColor) {
 	}
 }
  
+// Set pixel from a RGBpack.
+void neoPixel::setPixelColor(uint16_t n,RGBpack* inColor) { 
+    
+	byte	minColor;
+
+	if (isRGBType()) {
+		Adafruit_NeoPixel::setPixelColor(n,inColor->r,inColor->g,inColor->b);
+	} else {
+		minColor = min(inColor->r,inColor->g);
+		minColor = min(minColor,inColor->b);
+		Adafruit_NeoPixel::setPixelColor(n,inColor->r-minColor,inColor->g-minColor,inColor->b-minColor,minColor);
+	}
+}
+
  
 // Return colorObj from pixel.
 colorObj neoPixel::getPixelColor(uint16_t n) {
