@@ -1,6 +1,6 @@
 
-#include <baseImage.h>
-#include <Adafruit_NeoPixel.h>
+#include "baseImage.h"
+#include "Adafruit_NeoPixel.h"
 
 
 class imgNeoPixel {
