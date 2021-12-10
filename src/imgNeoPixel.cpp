@@ -8,78 +8,63 @@ imgNeoPixel::imgNeoPixel(Adafruit_NeoPixel* theLEDs,baseImage* theBMPImage) {
 	mImage			= theBMPImage;
 	mRGBArray		= NULL;
 	mNumPixels		= 0;
-	mImageFile		= NULL;
+	mReadyToDraw	= false;
 }
 				
 				
 imgNeoPixel::~imgNeoPixel(void) {
 
-	resizeBuff(0,&mRGBArray);
-	if (mFile) {
-		mFile.close();
-	}
+	resizeBuff(0,(byte**)&mRGBArray);		// Deallocate the offscreen buffer.
+	if (mImage) mImage->closeDocFile();		// Close but don't delete the image file.
 }
 	
-	
-bool  imgNeoPixel::setupOffscreen(int numPixels) {
 
-	int		maxWidth;
+// Open up the image file, make sure its readable. Then, if so.. Setup to allocate the
+// offscreen buffer. Basically an array of RGBpack(s). There are three numbers to take
+// into account. 
+// First 	: The number of pixels we have on the string.
+// Second	: The width of the image we have to read from.
+// Third		: The actual value the uses puts in as the value, and that default to zero.
+//
+// How to choose?
+void imgNeoPixel::setupOffscreen(int numPixels) {
+
+	int	maxWidth;
 	
-	mImageFile = NULL;														// Just in case.
-	maxWidth = min(mPixels->numPixels(),mImage->getWidth());
-	if (numPixels==0) {
-		mNumPixels = maxWidth;
-	} else {
-		mNumPixels = min(maxWidth,mNumPixels);
-	}
-	if (resizeBuff(sizeof(RGBpack)*mNumPixels,&mRGBArray)) {
-		mFile = SD.open(mImage->getDocFilePath());
-		if (mFile) {
-			mImageFile = &mFile;
-			return true;
-		} else {
-			resizeBuff(0,&mRGBArray);
-			mNumPixels = 0;
+	mReadyToDraw	= false;																	// We ain't ready yet..
+	if (mImage) {																				// If we have an image file..
+		if (mImage->openDocFile(FILE_READ)) {											// If we can open/read said image file..
+			maxWidth = min(mPixels->numPixels(),mImage->getWidth());				// Grab the smaller of the image width and the number of pixels we have.
+			if (numPixels==0) {																// If the numPixels passed in is zero..
+				mNumPixels = maxWidth;														// We just use the maxWidth we just calculated.
+			} else {																				// Else, we have non zero value passed in..
+				mNumPixels = min(maxWidth,numPixels);									// We use the smallar of the previous max width and this new passed in value.
+			}
+			if (resizeBuff(sizeof(RGBpack)*mNumPixels,(byte**)&mRGBArray)) {	// If we can grab the RAM..
+				mReadyToDraw = true;															// Ok, we are ready to draw!
+				return;																			// We call all of this a success! And exit.
+			} else {																				// Else, we could NOT allocate the buffer..
+				mImage->closeDocFile();														// Close the image file.
+			}
 		}
-	}
-	return false;
+	}																				// And if we got here? We call this a failure. And exit.
 }
-	
-	
-void imgNeoPixel::clearOffscreen(void) {
-
-	resizeBuff(0,&mRGBArray);
-	mNumPixels = 0;
-	if (mFile) {
-		mFile.close();
-	}
-	mImageFile = NULL;
-}
-
+			
 
 void imgNeoPixel::setLine(int row,int numPixels) {
 	
 	int		maxWidth;	
-	colorObj	aPixel;
 	
-	maxWidth = min(mPixels->numPixels(),mImage->getWidth());
-	if (numPixels==0) {
-		numPixels = maxWidth;
-	} else {
-		mNumPixels = min(maxWidth,mNumPixels);
-	}
-	if (mImageFile && mRGBArray) { 
-		mImage->getRow(row,mRGBArray,mNumPixels,mImageFile);
-		for (int i=0;i<mNumPixels;i++) {
-			mPixels->setPixelColor(i,mRGBArray[i].r,mRGBArray[i].g,mRGBArray[i].b);
+	if (mReadyToDraw) {
+		if (numPixels) {
+			maxWidth = min(mNumPixels,numPixels);
+		} else {
+			maxWidth = mNumPixels;
 		}
-	} else {
-		for (int i=0;i<maxWidth;i++) {
-			aPixel = mImage->getPixel(i,row);
-			mPixels->setPixelColor(i,aPixel.getRed(),aPixel.getGreen(),aPixel.getBlue());
+		if (mImage->getRow(0,row,maxWidth,mRGBArray)) {
+			for (int i=0;i<maxWidth;i++) {
+				mPixels->setPixelColor(i,mRGBArray[i].r,mRGBArray[i].g,mRGBArray[i].b);
+			}
 		}
 	}
-}			
-
-	
-
+}	

@@ -1,3 +1,6 @@
+#ifndef imgNeoPixel_h
+#define imgNeoPixel_h
+
 
 #include "baseImage.h"
 #include "Adafruit_NeoPixel.h"
@@ -9,16 +12,15 @@ class imgNeoPixel {
 				imgNeoPixel(Adafruit_NeoPixel* theLEDs,baseImage* theBMPImage);
 	virtual	~imgNeoPixel(void);
 	
+				void	setupOffscreen(int numPixels=0);
 	virtual	void	setLine(int row,int numPixels=0);
-				bool	setupOffscreen(int numPixels=0);
-				void	clearOffscreen(void);
 	
 	protected:
 				Adafruit_NeoPixel*	mPixels;
 				baseImage*				mImage;
 				RGBpack* 				mRGBArray;
 				int						mNumPixels;
-				File						mFile;
-				File*						mImageFile;
+				bool						mReadyToDraw;
 };
 
+#endif
