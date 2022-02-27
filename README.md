@@ -1,5 +1,5 @@
 # LC_neoPixel
-Extends Adafruit's NeoPixel library to allow use with our colorObj class.
+**Extends Adafruit's NeoPixel library to allow use with the LC_baseTools colorObj class.**  
 
 This allows passing colorObj to and from Adafruit NeoPixels. It also includes grouping of NeoPixles into independently code-able groups. Multiple groups can be run from a single output pin.
 
