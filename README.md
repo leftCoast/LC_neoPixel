@@ -13,6 +13,4 @@ This library allows setting and retereving NeoPixel colors using our colorObj cl
 
 The included chainPixel class allows groups of pixels to be coded independantly from each other, while running off of a single processor pin.
 
-But we are going to wait on that for a bit.
-
 
