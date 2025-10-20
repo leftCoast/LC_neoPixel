@@ -91,7 +91,7 @@ void chainPixels::idle(void) {
     trace = trace->getNext();
   }
   if (dirtyBit) {          // If someone did change something..
-    pixelDriver->show();   // Lest show it!
+    pixelDriver->show();   // Lets show it!
     dirtyBit = false;      // Cleanup.
   }
 }
