@@ -12,34 +12,33 @@
 
 chainPixels::chainPixels(byte inPin) {
   
-  pin = inPin;
-  pixelDriver  = NULL;  // A NULL pixelDriver is the flag saying- "Things have changed"; Need reset.
-  numPixels = 0;
-  dirtyBit = false;
+   pin = inPin;
+   pixelDriver  = NULL;  // A NULL pixelDriver is the flag saying- "Things have changed"; Need reset.
+   numPixels = 0;
+   dirtyBit = false;
 }
 
 
 chainPixels::~chainPixels(void) { if (pixelDriver) delete pixelDriver; }
   
   
-// If there is a change in configuration,
-// reset all the values and things.
+// If there is a change in configuration, reset all the values and things.
 void chainPixels::resetChain(void) {
   
-  linkListObj* trace;
-  
-  numPixels = 0;
-  trace = peek();
-  while(trace) {
-    ((pixelGroup*)trace)->setIndex(numPixels);
-    numPixels = numPixels + ((pixelGroup*)trace)->getNumPixels();
-    trace = trace->getNext();
-  }
-  if (pixelDriver) {        // Just in case, we don't want to leak this.
+   linkListObj* trace;
+   
+   numPixels = 0;
+   trace = peek();
+   while(trace) {
+      ((pixelGroup*)trace)->setIndex(numPixels);
+      numPixels = numPixels + ((pixelGroup*)trace)->getNumPixels();
+      trace = trace->getNext();
+   }
+   if (pixelDriver) {        // Just in case, we don't want to leak this.
       delete pixelDriver;
-  }
-  pixelDriver = new neoPixel(numPixels,pin);
-  pixelDriver->begin();
+   }
+   pixelDriver = new neoPixel(numPixels,pin);
+   pixelDriver->begin();
 }
 
 
@@ -56,44 +55,42 @@ void chainPixels::push(linkListObj* item) {
 
 // Hook into pop to show a change in config.
 linkListObj* chainPixels::pop(void) {
- 	  	
-   if (pixelDriver) {        // Configuration is changing! Dump the driver!
+      
+   if (pixelDriver) {         // Configuration is changing! Dump the driver!
       delete pixelDriver;
       pixelDriver = NULL;
     }
-   return queue::pop();            // Then do what a queue would do.
+   return queue::pop();       // Then do what a queue would do.
 }
 
 
-// Adds a group. Groups must be added in the
-// order that they are wired in.
+// Adds a group. Groups must be added in the order that they are wired in.
 void chainPixels::addGroup(pixelGroup* inGroup) {
   
-  if (inGroup) {
-    inGroup->setChain(this);      // Luke, I AM your father!
-    push((linkListObj*)inGroup);  // And in it goes!
-  }
+   if (inGroup) {
+      inGroup->setChain(this);      // Luke, I AM your father!
+      push((linkListObj*)inGroup);  // And in it goes!
+   }
 }
 
 
-// During idle time we give all the groups
-// a slice to do stuff.
+// During idle time we give all the groups a slice to do stuff.
 void chainPixels::idle(void) {
   
-  linkListObj* trace;
-  
-  if (!pixelDriver) {        // Ok, do we need a reset? NULL diver is the flag.
-    resetChain();
-  }
-  trace = peek();
-  while(trace) {            // Now everyone gets time to change thigns if they want.
-    ((pixelGroup*)trace)->draw();
-    trace = trace->getNext();
-  }
-  if (dirtyBit) {          // If someone did change something..
-    pixelDriver->show();   // Lets show it!
-    dirtyBit = false;      // Cleanup.
-  }
+   linkListObj* trace;
+   
+   if (!pixelDriver) {              // Ok, do we need a reset? NULL diver is the flag.
+      resetChain();
+   }
+   trace = peek();
+   while(trace) {                   // Now everyone gets time to change thigns if they want.
+      ((pixelGroup*)trace)->draw(); 
+      trace = trace->getNext();
+   }
+   if (dirtyBit) {                  // If someone did change something..
+      pixelDriver->show();          // Lets show it!
+      dirtyBit = false;             // Cleanup.
+   }
 }
 
 
@@ -155,40 +152,40 @@ void pixelGroup::setPixels(colorObj* color) {
  
 colorObj pixelGroup::shiftPixels(bool toEnd) {
 
-	colorObj  aColor;
-  colorObj  lastColor;
-  int       last;
-
-  last = getNumPixels()-1;
-  if (toEnd) {                              // Feed new colors onto pixel 0, pull 'em through to the end.
-    lastColor = getPixelColor(last);
-    for(int i=last;i>0;i--) {
-      aColor = getPixelColor(i-1);
-      setPixelColor(i,&aColor);
-    }
-  } else {                                  // Feed new colors onto last pixel, push 'em to the start..
-    lastColor = getPixelColor(0);
-    for(int i=0;i<last;i++) {
-      aColor = getPixelColor(i+1);
-      setPixelColor(i,&aColor);
-    }
-  }
-  return lastColor;
+   colorObj  aColor;
+   colorObj  lastColor;
+   int       last;
+   
+   last = getNumPixels()-1;
+   if (toEnd) {                           // Feed new colors onto pixel 0, pull 'em through to the end.
+      lastColor = getPixelColor(last);
+      for(int i=last;i>0;i--) {
+         aColor = getPixelColor(i-1);
+         setPixelColor(i,&aColor);
+      }
+   } else {                               // Feed new colors onto last pixel, push 'em to the start..
+      lastColor = getPixelColor(0);
+      for(int i=0;i<last;i++) {
+         aColor = getPixelColor(i+1);
+         setPixelColor(i,&aColor);
+      }
+   }
+   return lastColor;
 }
 
 
-void pixelGroup::roll(bool clockwise)		{
+void pixelGroup::roll(bool clockwise)     {
 
-		colorObj aColor;
-
-  	aColor = shiftPixels(!clockwise);
-  	if (!clockwise) {
-  		setPixelColor(0,&aColor);
-  	} else {
-  		setPixelColor(getNumPixels()-1,&aColor);
-  	}
-  }
-  						
-  						 
+   colorObj aColor;
+   
+   aColor = shiftPixels(!clockwise);
+   if (!clockwise) {
+      setPixelColor(0,&aColor);
+   } else {
+      setPixelColor(getNumPixels()-1,&aColor);
+   }
+}
+                  
+                   
 void pixelGroup::draw(void) {  } // This will be called repeatedly. Fill with your drawing code.
  
